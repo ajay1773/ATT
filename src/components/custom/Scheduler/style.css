@@ -1,0 +1,15 @@
+
+.scheduler__week{
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(7,minmax(100px,1fr));
+    grid-template-rows: 70px;
+}
+
+.scheduler__month{
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(7,minmax(100px,1fr));
+    grid-template-rows: repeat(6,minmax(100px,1fr));
+    height: calc(100% - 70px);
+}

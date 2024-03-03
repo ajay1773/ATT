@@ -1,0 +1,10 @@
+
+.monthday--weekend{
+    background: repeating-linear-gradient(
+        45deg,
+        var(--white),
+        var(--white) 10px,
+        var(--grey-1) 10px,
+        var(--grey-1) 20px
+    );
+}

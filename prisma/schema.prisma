@@ -1,0 +1,185 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider  = "postgresql"
+    url       = env("DATABASE_URL")
+    directUrl = env("DIRECT_URL")
+}
+
+model Session {
+    id           String   @id @default(cuid())
+    sessionToken String   @unique
+    userId       String
+    expires      DateTime
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+    id               String             @id @default(cuid())
+    firstName        String
+    lastName         String?
+    email            String             @unique
+    password         String
+    phoneNo          BigInt             @unique
+    address          String?
+    state            String
+    pincode          Int
+    dob              DateTime
+    roleName         RoleNames
+    gender           Gender
+    roleGroup        RoleGroup
+    attendance       Attendance[]
+    appliedLeaves    Leave[]            @relation("AppliedBy")
+    reportedBy       User[]             @relation("Associates")
+    reportsTo        User[]             @relation("Associates")
+    projects         UsersOnProjects[]
+    approverOnLeaves ApproverOnLeaves[]
+
+    sessions Session[]
+}
+
+model Client {
+    id       String    @id @default(cuid())
+    name     String
+    country  String
+    projects Project[]
+}
+
+model ApproverOnLeaves {
+    user       User     @relation(fields: [userId], references: [id])
+    userId     String
+    leave      Leave    @relation(fields: [leaveId], references: [id])
+    leaveId    String
+    isApproved Boolean  @default(false)
+    updatedAt  DateTime @updatedAt
+    createdAt  DateTime @default(now())
+
+    @@id([userId, leaveId])
+}
+
+model Project {
+    id          String            @id @default(cuid())
+    name        String
+    clientId    String
+    type        String
+    domain      String
+    resources   UsersOnProjects[]
+    leavesTaken Leave[]
+    client      Client            @relation(fields: [clientId], references: [id])
+}
+
+model UsersOnProjects {
+    user       User     @relation(fields: [userId], references: [id])
+    userId     String
+    project    Project  @relation(fields: [projectId], references: [id])
+    projectId  String
+    assignedAt DateTime @default(now())
+
+    @@id([userId, projectId])
+}
+
+model Holidays {
+    id   String   @id @default(cuid())
+    name String
+    type String   @default("public")
+    date DateTime
+}
+
+model Attendance {
+    id          String    @id @default(cuid())
+    userId      String
+    date        DateTime
+    startTime   DateTime
+    endTime     DateTime?
+    isSubmitted Boolean
+    user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Leave {
+    id                 String             @id @default(cuid())
+    appliedBy          String
+    type               LeaveType
+    description        String
+    from               DateTime
+    to                 DateTime
+    status             LeaveStatus        @default(PENDING)
+    updatedAt          DateTime           @updatedAt
+    createdAt          DateTime           @default(now())
+    applier            User               @relation("AppliedBy", fields: [appliedBy], references: [id])
+    appliedForProjects Project[]
+    approverOnLeaves   ApproverOnLeaves[]
+}
+
+model VerificationToken {
+    identifier String
+    token      String   @unique
+    expires    DateTime
+
+    @@unique([identifier, token])
+}
+
+// schema.prisma
+
+enum RoleNames {
+    // Technical roles
+    SOFTWARE_ENGINEER
+    FRONTEND_DEVELOPER
+    BACKEND_DEVELOPER
+    FULL_STACK_DEVELOPER
+    DEVOPS_ENGINEER
+    DATA_ENGINEER
+    MACHINE_LEARNING_ENGINEER
+    DATA_SCIENTIST
+    QUALITY_ASSURANCE_ENGINEER
+    TEST_AUTOMATION_ENGINEER
+    NETWORK_ENGINEER
+    SYSTEM_ADMINISTRATOR
+    SECURITY_ANALYST
+
+    // Non-technical roles
+    PROJECT_MANAGER
+    PRODUCT_MANAGER
+    BUSINESS_ANALYST
+    TECHNICAL_WRITER
+    UX_UI_DESIGNER
+    GRAPHIC_DESIGNER
+    HR_MANAGER
+    RECRUITER
+    FINANCE_MANAGER
+    MARKETING_MANAGER
+    SALES_MANAGER
+    CUSTOMER_SUPPORT_SPECIALIST
+    ADMINISTRATIVE_ASSISTANT
+}
+
+enum RoleGroup {
+    TECHNICAL
+    NON_TECHNICAL
+}
+
+enum Gender {
+    MALE
+    FEMALE
+}
+
+enum LeaveStatus {
+    APPROVED
+    REJECTED
+    PENDING
+    CONSUMED
+}
+
+enum LeaveType {
+    PRIVILEGE_LEAVE
+    EARNED_LEAVE
+    CASUAL_LEAVE
+    SICK_LEAVE
+    MATERNITY_LEAVE
+    COMPENSATORY_OFF
+    MARRIAGE_LEAVE
+    PATERNITY_LEAVE
+    BEREAVEMENT_LEAVE
+    LOSS_OF_PAY
+}
