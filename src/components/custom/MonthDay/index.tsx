@@ -11,13 +11,16 @@ import { LoadingSpinner } from "~/components/ui/spinner";
 import SavedAttendanceDialog from "../SavedAttendanceDialog";
 import OngoingAttendanceDialog from "../OngoingAttandanceDialog";
 import { useToast } from "~/components/ui/use-toast";
+import { DayDetails } from "~/server/types";
+import { removeUnderscore } from "~/lib/utils";
 
 type TMonthDayProps = {
   day: Moment;
   holiday?: Holidays;
+  dayDetails?: DayDetails | undefined;
 };
 
-export default function MonthDay({ day, holiday }: TMonthDayProps) {
+export default function MonthDay({ day, holiday, dayDetails }: TMonthDayProps) {
   const { toast } = useToast();
   const isSameDay = day.isSame(moment(), "day");
   const isInSameMonth = day.isSame(moment(), "month");
@@ -44,6 +47,12 @@ export default function MonthDay({ day, holiday }: TMonthDayProps) {
       "bg-yellow-200 text-gray-400": isWeekend || !isInSameMonth,
       "bg-yellow-400 text-black": !(isWeekend || !isInSameMonth),
     },
+  );
+
+  const leavesLabelClassName = classNames(
+    "capitalize px-[8px] py-[2px] rounded-sm text-xs text-white",
+    { "bg-yellow-500": dayDetails?.type === "leave" },
+    { "bg-blue-500": dayDetails?.type === "holiday" },
   );
 
   const [open, setOpen] = useState<boolean>(false);
@@ -88,7 +97,12 @@ export default function MonthDay({ day, holiday }: TMonthDayProps) {
         <div className={className}>
           <span className={labelClassName}>{day.format("DD")}</span>
           <>
-            {holiday && <p className={holidayLabelClassName}>{holiday.name}</p>}
+            {dayDetails && (
+              <p className={leavesLabelClassName}>
+                {removeUnderscore(dayDetails.name as string)}
+              </p>
+            )}
+            {/* {holiday && <p className={holidayLabelClassName}>{holiday.name}</p>} */}
           </>
           {showLoader && (
             <div className="absolute bottom-[0px] left-[0px] flex h-full w-full items-center justify-center bg-gray-100 bg-opacity-75">

@@ -6,9 +6,15 @@ import {
   writeFileToFolder,
 } from "~/server/utils/files";
 import { THoliday } from "./schema";
-import { createMultipleHolidayRecords, findAllHolidays } from "./repository";
+import {
+  createMultipleHolidayRecords,
+  deleteManyFromHolidays,
+  findAllHolidays,
+} from "./repository";
 import moment from "moment";
-import { Prisma } from "@prisma/client";
+import { Holidays, Leave, Prisma } from "@prisma/client";
+import { getLeavesForTimePeriod } from "../leaves/service";
+import { DayDetails } from "~/server/types";
 
 export const uploadHolidaysFile = async (byteArray: string) => {
   const tempFilePath = path.join(__dirname, "temp");
@@ -21,6 +27,7 @@ export const uploadHolidaysFile = async (byteArray: string) => {
 
 export const addCSVRowsToDatabase = async (rows: THoliday[]) => {
   if (rows.length) {
+    await emptyHolidaysTable();
     await createMultipleHolidayRecords({
       data: rows.map((row) => ({
         name: row.name,
@@ -29,6 +36,30 @@ export const addCSVRowsToDatabase = async (rows: THoliday[]) => {
       })),
     });
   }
+};
+
+export const getLeavesAndHolidaysCombinedForTimePeriod = async ({
+  startTime,
+  endTime,
+}: {
+  startTime: Date;
+  endTime: Date;
+}) => {
+  const leaves = await getLeavesForTimePeriod({
+    startTime,
+    endTime,
+  });
+
+  const holidays = await getHolidaysForTimePeriod({
+    startTime,
+    endTime,
+  });
+
+  return mergeHolidaysAndLeaves(leaves, holidays);
+};
+
+export const emptyHolidaysTable = async () => {
+  await deleteManyFromHolidays({});
 };
 
 export const getHolidaysForTimePeriod = async ({
@@ -48,4 +79,35 @@ export const getHolidaysForTimePeriod = async ({
   };
 
   return await findAllHolidays(query);
+};
+
+export const mergeHolidaysAndLeaves = (
+  leaves: Leave[],
+  holidays: Holidays[],
+): DayDetails[] => {
+  const mergedValues: DayDetails[] = [];
+
+  leaves.forEach((_l) => {
+    const dayLog: DayDetails = {
+      recordId: _l.id,
+      name: _l.type,
+      date: _l.from,
+      type: "leave",
+      leaveType: _l.type,
+      leaveStatus: _l.status,
+    };
+    mergedValues.push(dayLog);
+  });
+
+  holidays.forEach((_h) => {
+    const dayLog: DayDetails = {
+      recordId: _h.id,
+      name: _h.name,
+      date: _h.date,
+      type: "holiday",
+    };
+    mergedValues.push(dayLog);
+  });
+
+  return mergedValues;
 };

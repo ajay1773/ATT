@@ -12,6 +12,7 @@ import { DialogHeader } from "~/components/ui/dialog";
 import Timer from "../Timer";
 import { endDay, startDay } from "~/actions/monthday";
 import { Progress } from "~/components/ui/progress";
+import classNames from "classnames";
 
 type TOngoingAttendanceDialogProps = {
   day: Moment;
@@ -51,6 +52,13 @@ export default function OngoingAttendanceDialog({
       console.error(error);
     }
   };
+
+  const stopButtonClass = classNames(
+    "flex h-[50px] w-[50px] items-center justify-center rounded-[50%] border-0 bg-red-500 p-0 text-lg shadow hover:bg-red-600",
+    {
+      "bg-red-300 hover:bg-red-300 cursor-not-allowed": !hasStarted,
+    },
+  );
   return (
     <DialogHeader>
       <DialogTitle className="mb-5 flex gap-1 text-2xl font-medium">
@@ -73,13 +81,14 @@ export default function OngoingAttendanceDialog({
         >
           <RiPlayCircleFill className="text-2xl text-white " />
         </button>
-        <Progress className="h-1 w-[75%]" value={33} />
+        {hasStarted && <Progress className="h-1 w-[75%]" value={33} />}
         {/* <div className="h-[1px] w-full border-t-[2px] border-dashed border-gray-300">
         </div> */}
         {hasStarted && <Timer startDate={moment(attendanceLog?.startTime)} />}
         <button
           onClick={handleEndButtonClick}
-          className="flex h-[50px] w-[50px] items-center justify-center rounded-[50%] border-0 bg-red-500 p-0 text-lg shadow hover:bg-red-600"
+          disabled={!hasStarted}
+          className={stopButtonClass}
         >
           <RiStopCircleFill className="text-2xl text-white " />
         </button>

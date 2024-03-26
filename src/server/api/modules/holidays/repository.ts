@@ -8,9 +8,20 @@ export const createMultipleHolidayRecords = async (args: {
   return newRecords;
 };
 
-export const findAllHolidays = async <T extends Prisma.HolidaysFindManyArgs>(
-  payload: T,
+export const findAllHolidays = async <
+  T extends Prisma.HolidaysFindManyArgs = {},
+>(
+  payload: T = {} as T,
 ): Promise<Holidays[]> => {
   const data = await db.holidays.findMany(payload);
   return data;
+};
+
+export const deleteManyFromHolidays = async <
+  T extends Prisma.HolidaysDeleteManyArgs = {},
+>(
+  query: T = {} as T,
+): Promise<Prisma.BatchPayload> => {
+  const response = await db.holidays.deleteMany(query);
+  return response;
 };

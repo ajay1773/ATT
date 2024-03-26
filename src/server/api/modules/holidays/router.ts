@@ -3,8 +3,11 @@ import path from "path";
 import { z } from "zod";
 import fs from "fs-extra";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import { ensureFolderExists } from "~/server/utils/files";
-import { getHolidaysForTimePeriod, uploadHolidaysFile } from "./service";
+import {
+  getHolidaysForTimePeriod,
+  getLeavesAndHolidaysCombinedForTimePeriod,
+  uploadHolidaysFile,
+} from "./service";
 
 export const holidayRouter = createTRPCRouter({
   getHolidayForSpecificMonth: protectedProcedure
@@ -47,6 +50,19 @@ export const holidayRouter = createTRPCRouter({
           endTime: input.endTime,
         });
         return holidays;
+      } catch (error) {
+        console.log(error);
+      }
+    }),
+  getHolidaysAndLeavesForTimePeriod: protectedProcedure
+    .input(z.object({ startTime: z.date(), endTime: z.date() }))
+    .query(async ({ input }) => {
+      try {
+        const dayDetails = await getLeavesAndHolidaysCombinedForTimePeriod({
+          startTime: input.startTime,
+          endTime: input.endTime,
+        });
+        return dayDetails;
       } catch (error) {
         console.log(error);
       }

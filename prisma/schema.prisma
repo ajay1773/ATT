@@ -120,6 +120,14 @@ model VerificationToken {
     @@unique([identifier, token])
 }
 
+model GlobalSettings {
+    id             String @id @default(cuid())
+    latitude       Float
+    longitude      Float
+    shiftStartHour String
+    shiftEndHour   String
+}
+
 // schema.prisma
 
 enum RoleNames {

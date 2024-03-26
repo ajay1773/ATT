@@ -10,6 +10,7 @@ export enum EWeekDay {
 
 export enum ENavIconNames {
   Dashboard = "Dashboard",
+  Calendar = "Calendar",
   Leaves = "Leaves",
   Employees = "Employees",
   Settings = "Settings",

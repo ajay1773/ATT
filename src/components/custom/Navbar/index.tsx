@@ -13,7 +13,7 @@ import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { RiUserStarFill } from "react-icons/ri";
 import { RiLuggageCartFill } from "react-icons/ri";
-import { RiSettings3Fill } from "react-icons/ri";
+import { RiSettings3Fill, RiCalendar2Fill } from "react-icons/ri";
 
 type TIconConfig = {
   [key: string]: IconType;
@@ -25,6 +25,7 @@ type TNavbarProps = {
 
 const IconConfig: TIconConfig = {
   [ENavIconNames.Dashboard]: RiHome4Fill,
+  [ENavIconNames.Calendar]: RiCalendar2Fill,
   [ENavIconNames.Leaves]: RiLuggageCartFill,
   [ENavIconNames.Employees]: RiUserStarFill,
   [ENavIconNames.Settings]: RiSettings3Fill,

@@ -3,9 +3,9 @@ import { TNavConfig } from "~/constants/types";
 
 export const navigation: TNavConfig[] = [
   {
-    iconName: ENavIconNames.Dashboard,
-    label: "Dashboard",
-    link: "/dashboard",
+    iconName: ENavIconNames.Calendar,
+    label: "Calendar",
+    link: "/calendar",
   },
   {
     iconName: ENavIconNames.Leaves,

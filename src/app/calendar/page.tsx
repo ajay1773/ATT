@@ -6,14 +6,26 @@ import Scheduler from "~/components/custom/Scheduler";
 import { Button } from "~/components/ui/button";
 import { api } from "~/trpc/react";
 import { RiArrowLeftSFill, RiArrowRightSFill } from "react-icons/ri";
+import { DayDetails } from "~/server/types";
 
-export default function DashboardPage() {
+export default function CalendarPage() {
   const [currentMonth, setCurrentMonth] = useState<Moment>(moment());
   const { data: holidaysInMonth, isLoading } =
     api.holidays.getHolidayForSpecificMonth.useQuery<Holidays[]>(
       { date: currentMonth.toDate() },
       { refetchOnWindowFocus: false },
     );
+
+  const { data: dayDetailsForMonth, isLoading: isDayLogsLoading } =
+    api.holidays.getHolidaysAndLeavesForTimePeriod.useQuery<DayDetails[]>(
+      {
+        startTime: moment().startOf("month").toDate(),
+        endTime: moment().endOf("month").toDate(),
+      },
+      { refetchOnWindowFocus: false },
+    );
+
+  console.log(holidaysInMonth);
 
   return (
     <div className="flex min-h-full flex-col justify-between">
@@ -43,8 +55,12 @@ export default function DashboardPage() {
           </Button>
         </div>
       </div>
-      {!isLoading && (
-        <Scheduler month={currentMonth} holidays={holidaysInMonth} />
+      {!isDayLogsLoading && (
+        <Scheduler
+          month={currentMonth}
+          holidays={holidaysInMonth}
+          dayDetails={dayDetailsForMonth}
+        />
       )}
     </div>
   );

@@ -6,13 +6,19 @@ import { TWeekDayLabel } from "~/constants/types";
 import MonthDay from "../MonthDay";
 import "./style.css";
 import { Holidays } from "@prisma/client";
+import { DayDetails } from "~/server/types";
 
 type TSchedulerProps = {
   month: Moment;
   holidays: Holidays[] | undefined;
+  dayDetails: DayDetails[] | undefined;
 };
 
-export default function Scheduler({ month, holidays }: TSchedulerProps) {
+export default function Scheduler({
+  month,
+  holidays,
+  dayDetails,
+}: TSchedulerProps) {
   const totalNumberOfCells = 42;
   const daysOfLastMonth: Moment[] = [];
   const daysOfCurrentMonth: Moment[] = [];
@@ -79,10 +85,15 @@ export default function Scheduler({ month, holidays }: TSchedulerProps) {
             <MonthDay key={day.format("DD MM")} day={day} />
           ))}
         {!isEmpty(daysOfCurrentMonth) &&
-          map(daysOfCurrentMonth, (day, index) => {
+          map(daysOfCurrentMonth, (day) => {
             const isAHoliday: Holidays | undefined = find(
               holidays,
               (holiday) => day.date() === moment(holiday.date).date(),
+            );
+
+            const isAHolidayOrLeave: DayDetails | undefined = find(
+              dayDetails,
+              (detail: DayDetails) => moment(detail.date).date() === day.date(),
             );
 
             return (
@@ -90,6 +101,7 @@ export default function Scheduler({ month, holidays }: TSchedulerProps) {
                 key={day.format("DD MM")}
                 day={day}
                 holiday={isAHoliday}
+                dayDetails={isAHolidayOrLeave}
               />
             );
           })}

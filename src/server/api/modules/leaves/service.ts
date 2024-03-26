@@ -36,6 +36,25 @@ export const addNewLeaveRecord = async (
   return newLeave;
 };
 
+export const getLeavesForTimePeriod = async ({
+  startTime,
+  endTime,
+}: {
+  startTime: Date;
+  endTime: Date;
+}): Promise<Leave[]> => {
+  return await findManyLeaves({
+    where: {
+      from: {
+        gte: startTime,
+      },
+      to: {
+        lt: endTime,
+      },
+    },
+  });
+};
+
 export const getUsersLeaves = async (
   userID: string,
 ): Promise<LeaveWithApprovers[]> => {

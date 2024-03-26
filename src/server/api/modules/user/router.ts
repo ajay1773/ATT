@@ -1,6 +1,13 @@
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import { addNewUser, getAllUsers, getProjectsForUser } from "./service";
-import { addNewUserInputSchema } from "./schema";
+import {
+  addNewUser,
+  createGlobalSettingsRecord,
+  getAllGlobalSettingsRecords,
+  getAllUsers,
+  getProjectsForUser,
+  updateGlobalSettingsRecord,
+} from "./service";
+import { addNewGlobalSettingsRecord, addNewUserInputSchema } from "./schema";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
@@ -49,4 +56,46 @@ export const userRouter = createTRPCRouter({
         });
       }
     }),
+  getAllReportingLocation: protectedProcedure.query(async () => {
+    return await getAllGlobalSettingsRecords();
+  }),
+  createReportingLocation: protectedProcedure
+    .input(addNewGlobalSettingsRecord)
+    .mutation(
+      async ({
+        input: { latitude, longitude, shiftEndTime, shiftStartTime },
+      }) => {
+        try {
+          const record = await createGlobalSettingsRecord({
+            longitude,
+            latitude,
+            shiftEndTime,
+            shiftStartTime,
+          });
+          return record;
+        } catch (error) {
+          console.error(error);
+        }
+      },
+    ),
+  updateReportingLocation: protectedProcedure
+    .input(addNewGlobalSettingsRecord)
+    .mutation(
+      async ({
+        input: { id, longitude, latitude, shiftEndTime, shiftStartTime },
+      }) => {
+        try {
+          const updatedRecord = await updateGlobalSettingsRecord({
+            longitude,
+            latitude,
+            shiftEndTime,
+            shiftStartTime,
+            id,
+          });
+          return updatedRecord;
+        } catch (error) {
+          console.error(error);
+        }
+      },
+    ),
 });

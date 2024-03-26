@@ -1,6 +1,17 @@
-import { Prisma, Project, User } from "@prisma/client";
-import { createUserRecord, findAllUsers, findSingleUser } from "./repository";
-import { TAddNewUserInputSchema, TGetUserProjectsInputSchema } from "./schema";
+import { Prisma, Project, GlobalSettings, User } from "@prisma/client";
+import {
+  createUserRecord,
+  findAllGlobalSettingsRecords,
+  findAllUsers,
+  findSingleUser,
+  updateGlobalSettings,
+  createSingleGlobalSettingsRecord,
+} from "./repository";
+import {
+  TAddNewGlobalSettingsRecord,
+  TAddNewUserInputSchema,
+  TGetUserProjectsInputSchema,
+} from "./schema";
 
 const userWithProjects = Prisma.validator<Prisma.UserDefaultArgs>()({
   include: {
@@ -65,4 +76,37 @@ export const getProjectsForUser = async (
   } else {
     return null;
   }
+};
+
+export const getAllGlobalSettingsRecords = async (): Promise<
+  GlobalSettings[]
+> => {
+  return await findAllGlobalSettingsRecords();
+};
+
+export const createGlobalSettingsRecord = async (
+  payload: TAddNewGlobalSettingsRecord,
+): Promise<GlobalSettings> => {
+  const values: Prisma.GlobalSettingsCreateInput = {
+    longitude: payload.longitude,
+    latitude: payload.latitude,
+    shiftStartHour: payload.shiftStartTime,
+    shiftEndHour: payload.shiftEndTime,
+  };
+  return await createSingleGlobalSettingsRecord(values);
+};
+
+export const updateGlobalSettingsRecord = async (
+  payload: TAddNewGlobalSettingsRecord,
+): Promise<GlobalSettings> => {
+  const values: Prisma.GlobalSettingsUpdateArgs = {
+    data: {
+      longitude: payload.longitude,
+      latitude: payload.latitude,
+    },
+    where: {
+      id: payload.id,
+    },
+  };
+  return await updateGlobalSettings(values);
 };
