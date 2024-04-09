@@ -32,7 +32,7 @@ export default function OngoingAttendanceDialog({
 
   const handleStartButtonClick = async () => {
     try {
-      const newRecord = await startDay(moment().toDate());
+      const newRecord = await startDay(day.toDate());
       closeDialog();
       console.log(newRecord);
     } catch (error) {
@@ -43,7 +43,7 @@ export default function OngoingAttendanceDialog({
   const handleEndButtonClick = async () => {
     try {
       const updatedRecord = await endDay(
-        moment().toDate(),
+        day.toDate(),
         attendanceLog as Attendance,
       );
       closeDialog();
@@ -74,17 +74,28 @@ export default function OngoingAttendanceDialog({
         </div>
       )}
       <div className="mt-6 flex items-center justify-between">
-        <button
-          disabled={hasStarted}
-          className="flex h-[50px] w-[50px] items-center justify-center rounded-[50%] border-0 bg-green-500  p-0 text-lg shadow hover:bg-green-600"
-          onClick={handleStartButtonClick}
-        >
-          <RiPlayCircleFill className="text-2xl text-white " />
-        </button>
-        {hasStarted && <Progress className="h-1 w-[75%]" value={33} />}
+        <div className="flex flex-col gap-1">
+          <button
+            disabled={hasStarted}
+            className="flex h-[50px] w-[50px] cursor-not-allowed items-center justify-center rounded-[50%] border-0  bg-green-500 p-0 text-lg shadow hover:bg-green-600 disabled:bg-green-700"
+            onClick={handleStartButtonClick}
+          >
+            <RiPlayCircleFill
+              className={`text-2xl ${hasStarted ? "text-gray-200" : "text-white "}`}
+            />
+          </button>
+          {hasStarted && (
+            <span className="whitespace-nowrap text-xs text-gray-500">
+              {moment(attendanceLog?.startTime).format("LT")}
+            </span>
+          )}
+        </div>
+        <div className=" flex h-full w-[calc(100%-100px)] flex-col items-center gap-1 px-1">
+          {hasStarted && <Timer startDate={moment(attendanceLog?.startTime)} />}
+          {hasStarted && <Progress className="h-1 w-full" value={33} />}
+        </div>
         {/* <div className="h-[1px] w-full border-t-[2px] border-dashed border-gray-300">
         </div> */}
-        {hasStarted && <Timer startDate={moment(attendanceLog?.startTime)} />}
         <button
           onClick={handleEndButtonClick}
           disabled={!hasStarted}
